@@ -19,9 +19,7 @@ suite(`readRepositoryUrl - from package json object`, () => {
       url: 'https://github.com/foo/bar.git'
     };
 
-    const actual = readRepositoryUrl(repository);
-
-		assert.strictEqual(actual, 'https://github.com/foo/bar.git');
+		assert.strictEqual(readRepositoryUrl(repository), 'https://github.com/foo/bar.git');
 	});
 
 	test(`read repository url from shortcut string`, () => {
@@ -30,5 +28,15 @@ suite(`readRepositoryUrl - from package json object`, () => {
 		assert.strictEqual(readRepositoryUrl(`gist:11081aaa281`), `https://gist.github.com/11081aaa281`);
 		assert.strictEqual(readRepositoryUrl(`bitbucket:user/repo`), `https://bitbucket.org/user/repo`);
 		assert.strictEqual(readRepositoryUrl(`gitlab:user/repo`), `https://gitlab.com/user/repo`);
+	});
+
+	test(`read repository url with directory subpath`, () => {
+		const repository = {
+      type: 'git',
+      url: 'https://github.com/foo/bar.git',
+			directory: 'packages/something',
+    };
+
+		assert.strictEqual(readRepositoryUrl(repository), 'https://github.com/foo/bar/tree/master/packages/something');
 	});
 });

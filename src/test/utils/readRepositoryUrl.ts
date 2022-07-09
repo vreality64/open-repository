@@ -17,7 +17,18 @@ export function readRepositoryUrl(repository: Repository) {
 
   const { url, directory } = repository;
 
-  return `${url}`;
+  if (typeof url !== 'string' || url.trim().length === 0) {
+    throw new Error(`[Open Repository] it's not valid url value`);
+  }
+
+  if (typeof directory === 'string' && directory !== '') {
+    const extIndex = url.lastIndexOf('.git');
+    const sliced = extIndex >= 0 ? url.slice(0, extIndex) : url;
+
+    return `${sliced}/tree/master/${directory}`;
+  }
+
+  return url;
 }
 
 const shortcutSyntax = {
