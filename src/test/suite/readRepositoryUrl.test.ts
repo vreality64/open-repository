@@ -1,10 +1,17 @@
 import * as assert from 'assert';
 import * as vscode from 'vscode';
+import { before, after } from 'mocha';
 
 import { readRepositoryUrl } from '../utils/readRepositoryUrl';
 
 suite(`readRepositoryUrl - from package json object`, () => {
-	vscode.window.showInformationMessage('Start readRepositoryUrl tests.');
+	before(() => {
+		vscode.window.showInformationMessage('Start readRepositoryUrl tests.');
+	});
+
+	after(() => {
+		vscode.window.showInformationMessage('All readRepositoryUrl tests done!');
+	});
 
 	test(`read repository url from object`, () => {
     const repository = {

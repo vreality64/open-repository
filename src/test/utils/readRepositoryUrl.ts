@@ -21,11 +21,11 @@ export function readRepositoryUrl(repository: Repository) {
 }
 
 const shortcutSyntax = {
-  'npm': 'https://npm.com/',
-  'github': 'https://github.com/',
-  'gist': 'https://gist.github.com/',
-  'bitbucket': 'https://bitbucket.org/',
-  'gitlab': 'https://gitlab.com/',
+  'npm': 'https://npm.com',
+  'github': 'https://github.com',
+  'gist': 'https://gist.github.com',
+  'bitbucket': 'https://bitbucket.org',
+  'gitlab': 'https://gitlab.com',
 } as const;
 
 type ShortcutKey = StringKeyOf<typeof shortcutSyntax>;
