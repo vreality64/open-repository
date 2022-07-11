@@ -1,11 +1,32 @@
 {
   "name": "open-repository",
   "displayName": "open-repository",
-  "description": "",
-  "version": "0.0.1",
+  "description": "open npm package repository in browser",
+  "version": "1.0.0",
   "engines": {
 		"vscode": "^1.63.0"
 	},
+  "icon": "public/icon.png",
+  "publisher": "vreality64",
+  "author": {
+    "name": "vreality64",
+    "email": "vreality64@gmail.com",
+    "url": "https://github.com/vreality64"
+  },
+  "bugs": {
+    "url": "https://github.com/vreality64/open-repository/issues",
+    "email": "vreality64@gmail.com"
+  },
+  "keywords": ["npm", "repository", "vscode-extension", "git"],
+  "contributors": [{
+    "name": "vreality64",
+    "email": "vreality64@gmail.com",
+    "url": "https://github.com/vreality64"
+  }],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/vreality64/open-repository.git"
+  },
   "categories": [
     "Other"
   ],
