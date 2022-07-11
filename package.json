@@ -24,7 +24,8 @@
       {
         "command": "open-repository.openRepositoryFromSelection",
         "title": "open repository url in browser",
-        "category": "Open Repository"
+        "category": "Open Repository",
+        "enablement": "editorHasSelection"
       }
     ],
     "menus": {
