@@ -98,5 +98,5 @@ async function openRepository(query: string) {
 
   terminal.dispose();
 
-  return result === "success" ? Promise.resolve() : Promise.reject();
+  return /success/.test(result) ? Promise.resolve() : Promise.reject();
 }
