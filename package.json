@@ -10,16 +10,32 @@
     "Other"
   ],
   "activationEvents": [
-    "onCommand:open-repository.openRepository"
+    "onCommand:open-repository.openRepository",
+    "onCommand:open-repository.openRepositoryFromSelection"
   ],
   "main": "./out/extension.js",
   "contributes": {
     "commands": [
       {
         "command": "open-repository.openRepository",
-        "title": "Open Repository: open repository url in browser"
+        "title": "open repository url in browser",
+        "category": "Open Repository"
+      },
+      {
+        "command": "open-repository.openRepositoryFromSelection",
+        "title": "open repository url in browser",
+        "category": "Open Repository"
       }
-    ]
+    ],
+    "menus": {
+      "editor/context": [
+        {
+          "when": "editorHasSelection",
+          "command": "open-repository.openRepositoryFromSelection",
+          "title": "Open Repository"
+        }
+      ]
+    }
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",
