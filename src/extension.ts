@@ -1,4 +1,4 @@
-import { window, ExtensionContext, commands, env, workspace, Uri, TerminalOptions, Terminal, ProgressLocation  } from 'vscode';
+import { window, ExtensionContext, commands, env, TerminalOptions, ProgressLocation } from 'vscode';
 import { withDelay } from './utils/delay';
 import { isEmptyStringOrNil } from './utils/validator';
 
@@ -19,24 +19,27 @@ export function activate(context: ExtensionContext) {
 
     try {
       await openRepository(query);
-    } catch(error) {
+    } catch (error) {
       window.showErrorMessage(`${GROUP} fail to open repository, check repository information in package.json`);
     }
   });
 
-  const openFromSelection = commands.registerTextEditorCommand('open-repository.openRepositoryFromSelection', async (editor) => {
-    const query = editor?.document.getText(editor.selection);
+  const openFromSelection = commands.registerTextEditorCommand(
+    'open-repository.openRepositoryFromSelection',
+    async (editor) => {
+      const query = editor?.document.getText(editor.selection);
 
-    if (isEmptyStringOrNil(query)) {
-      return;
-    }
+      if (isEmptyStringOrNil(query)) {
+        return;
+      }
 
-    try {
-      await openRepository(query);
-    } catch(error) {
-      window.showErrorMessage(`${GROUP} fail to open repository, check repository information in package.json`);
-    }
-  });
+      try {
+        await openRepository(query);
+      } catch (error) {
+        window.showErrorMessage(`${GROUP} fail to open repository, check repository information in package.json`);
+      }
+    },
+  );
 
   context.subscriptions.push(open, openFromSelection);
 
@@ -56,7 +59,7 @@ function findTerminal(name?: string) {
     return undefined;
   }
 
-  return window.terminals.find(terminal => terminal.name === name);
+  return window.terminals.find((terminal) => terminal.name === name);
 }
 
 function getTerminal(options: TerminalOptions) {
@@ -87,10 +90,13 @@ async function openRepository(query: string) {
   fi
   `);
 
-  await window.withProgress({
-    title: `${GROUP} trying to open repository '${query}'`,
-    location: ProgressLocation.Notification
-  }, withDelay(WAIT_TIME));
+  await window.withProgress(
+    {
+      title: `${GROUP} trying to open repository '${query}'`,
+      location: ProgressLocation.Notification,
+    },
+    withDelay(WAIT_TIME),
+  );
 
   const result = await env.clipboard.readText();
 
