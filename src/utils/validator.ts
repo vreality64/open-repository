@@ -11,3 +11,7 @@ export function hasPositiveLength(value: { length: number }) {
 export function isEmptyStringOrNil(value: unknown): value is Nil | '' {
   return isNil(value) || (typeof value === 'string' && !hasPositiveLength(value));
 }
+
+export function isEmptyArrayOrNil(value: unknown): value is Nilable<[]> {
+  return isNil(value) || (Array.isArray(value) && !hasPositiveLength(value));
+}
