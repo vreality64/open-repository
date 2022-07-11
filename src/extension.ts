@@ -4,27 +4,41 @@ import { isEmptyStringOrNil } from './utils/validator';
 
 const EXTENSION_NAME = `open-repository`;
 const GROUP = `[Open Repository] `;
+// NOTE: wait for a while until shell command finished
+const WAIT_TIME = 5000;
 
 export function activate(context: ExtensionContext) {
   console.log(`${GROUP} start initialize open-repository extension`);
 
   const open = commands.registerCommand('open-repository.openRepository', async () => {
-    const query = await window.showInputBox({ placeHolder: `@facebook/react`, prompt: `Enter package name` });
+    const query = await window.showInputBox({ placeHolder: `react`, prompt: `Enter package name` });
 
     if (isEmptyStringOrNil(query)) {
       return;
     }
 
-    const command = `npm repo ${query}`;
-    const terminal = getTerminal({ name: EXTENSION_NAME });
-
-    terminal.sendText(command);
-
-    // NOTE: dummy progress, there is no way to handle terminal output
-    window.withProgress({ title: `${GROUP} opening repository...`, location: ProgressLocation.Notification }, withDelay(5000));
+    try {
+      await openRepository(query);
+    } catch(error) {
+      window.showErrorMessage(`${GROUP} fail to open repository, check repository information in package.json`);
+    }
   });
 
-  context.subscriptions.push(open);
+  const openFromSelection = commands.registerTextEditorCommand('open-repository.openRepositoryFromSelection', async (editor) => {
+    const query = editor?.document.getText(editor.selection);
+
+    if (isEmptyStringOrNil(query)) {
+      return;
+    }
+
+    try {
+      await openRepository(query);
+    } catch(error) {
+      window.showErrorMessage(`${GROUP} fail to open repository, check repository information in package.json`);
+    }
+  });
+
+  context.subscriptions.push(open, openFromSelection);
 
   console.log(`${GROUP} open-repository initialized successfully`);
 }
@@ -56,4 +70,33 @@ function getTerminal(options: TerminalOptions) {
     ...options,
     hideFromUser: true,
   });
+}
+
+async function openRepository(query: string) {
+  const command = `npm repo ${query}`;
+  const terminal = getTerminal({ name: EXTENSION_NAME });
+  const backup = await env.clipboard.readText();
+
+  terminal.sendText(command);
+  terminal.sendText(`
+  if [ $? -eq 0 ]
+  then
+    echo "success" | pbcopy
+  else
+    echo "fail" | pbcopy
+  fi
+  `);
+
+  await window.withProgress({
+    title: `${GROUP} trying to open repository '${query}'`,
+    location: ProgressLocation.Notification
+  }, withDelay(WAIT_TIME));
+
+  const result = await env.clipboard.readText();
+
+  await env.clipboard.writeText(backup);
+
+  terminal.dispose();
+
+  return result === "success" ? Promise.resolve() : Promise.reject();
 }
