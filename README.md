@@ -8,21 +8,25 @@ VSCode extension - "Open package repository in browser"
 
 **case 1. open installed package**
 
-https://user-images.githubusercontent.com/886706/178266100-d0a84d0c-7bdb-4c74-b3d7-252140f6ede5.mov
+![1  open installed package](https://user-images.githubusercontent.com/886706/178279347-8b64773a-26f5-4a66-a9a7-629f39691445.gif)
+
 
 
 **case 2. open not installed package**
 
-https://user-images.githubusercontent.com/886706/178266145-c7857a70-347c-47f8-b29c-ae4cca6ca688.mov
+![2  open not installed package](https://user-images.githubusercontent.com/886706/178279382-bd006dba-b516-44b8-ab44-cfea0846759e.gif)
+
 
 
 **case 3. open invalid package**
 
-https://user-images.githubusercontent.com/886706/178266154-7df6d3bb-8951-4634-88d0-f0bbbbfc3ae4.mov
+![3  open not valid package](https://user-images.githubusercontent.com/886706/178279389-c8deb006-153d-4c57-b4d8-e2784ec6a136.gif)
+
+
 
 
 ### 2. open with selection
 
 **case 1. open selected package**
 
-https://user-images.githubusercontent.com/886706/178266165-178c7b08-68d4-439e-9508-61c7e731ae27.mov
+![4  open selected package](https://user-images.githubusercontent.com/886706/178279396-b28ff72b-61e7-44e6-b1be-a966de8eb453.gif)
