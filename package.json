@@ -1,6 +1,6 @@
 {
   "name": "open-repository",
-  "displayName": "open-repository",
+  "displayName": "Open Repository",
   "description": "open npm package repository in browser",
   "version": "1.0.0",
   "engines": {
