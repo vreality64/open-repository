@@ -2,7 +2,7 @@ import * as assert from 'assert';
 import * as vscode from 'vscode';
 import { before, after } from 'mocha';
 
-import { readRepositoryUrl } from '../utils/readRepositoryUrl';
+import { readRepositoryUrl } from '../../utils/readRepositoryUrl';
 
 suite(`readRepositoryUrl - from package json object`, () => {
 	before(() => {

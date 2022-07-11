@@ -8,11 +8,16 @@ interface RepositoryRecord {
 
 type RepositoryShortcut = string;
 
-type Repository = RepositoryRecord | RepositoryShortcut;
+export type Repository = RepositoryRecord | RepositoryShortcut;
 
 export function readRepositoryUrl(repository: Repository) {
   if (typeof repository === 'string') {
-    return parseShortcutRepository(repository).url;
+    if (hasShortcut(repository)) {
+      return parseShortcutRepository(repository).url;
+    }
+
+    // no shortcut, it means github shortcut
+    return getGithubRepository(repository).url;
   }
 
   const { url, directory } = repository;
@@ -61,4 +66,15 @@ function parseShortcutRepository(repository: RepositoryShortcut) {
   }
 
   throw new Error(`[Open Repository] it's not supported shortcut `);
+}
+
+function hasShortcut(repository: RepositoryShortcut) {
+  return shortcutKeys.some(key => repository.startsWith(key));
+}
+
+function getGithubRepository(repository: RepositoryShortcut) {
+  const shortcut = 'github';
+  const base = shortcutSyntax[shortcut];
+
+  return { shortcut, url: `${base}/${repository}` };
 }
