@@ -3,18 +3,21 @@
   "displayName": "open-repository",
   "description": "",
   "version": "0.0.1",
+  "engines": {
+		"vscode": "^1.63.0"
+	},
   "categories": [
     "Other"
   ],
   "activationEvents": [
-    "onCommand:open-repository.helloWorld"
+    "onCommand:open-repository.openRepository"
   ],
   "main": "./out/extension.js",
   "contributes": {
     "commands": [
       {
-        "command": "open-repository.helloWorld",
-        "title": "Open Repository: Hello World"
+        "command": "open-repository.openRepository",
+        "title": "Open Repository: open repository url in browser"
       }
     ]
   },

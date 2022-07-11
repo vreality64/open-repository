@@ -1,7 +1,8 @@
-import { window, ExtensionContext, commands, env, workspace, Uri,  } from 'vscode';
-import { isEmptyArrayOrNil, isEmptyStringOrNil } from './utils/validator';
-import { readRepositoryUrl, Repository } from './utils/readRepositoryUrl';
+import { window, ExtensionContext, commands, env, workspace, Uri, TerminalOptions, Terminal, ProgressLocation  } from 'vscode';
+import { withDelay } from './utils/delay';
+import { isEmptyStringOrNil } from './utils/validator';
 
+const EXTENSION_NAME = `open-repository`;
 const GROUP = `[Open Repository] `;
 
 export function activate(context: ExtensionContext) {
@@ -11,33 +12,16 @@ export function activate(context: ExtensionContext) {
     const query = await window.showInputBox({ placeHolder: `@facebook/react`, prompt: `Enter package name` });
 
     if (isEmptyStringOrNil(query)) {
-      window.showWarningMessage(`${GROUP} package name is required`);
-
       return;
     }
 
-    const target = `node_modules/${query}/package.json`;
-    const files = await workspace.findFiles(target, `!node_modules/**/*`);
+    const command = `npm repo ${query}`;
+    const terminal = getTerminal({ name: EXTENSION_NAME });
 
-    if (isEmptyArrayOrNil(files)) {
-      window.showWarningMessage(`${GROUP} installed package not found: typed -> ${query}`);
+    terminal.sendText(command);
 
-      return;
-    }
-
-    try {
-      const packageJson = await readPackageJson<{ repository: Repository }>(files[0].path);
-      const url = readRepositoryUrl(packageJson.repository);
-      const repositoryUri = Uri.parse(url);
-
-      const success = env.openExternal(repositoryUri);
-
-      if (!success) {
-        throw new Error();
-      }
-    } catch (error) {
-      window.showErrorMessage(`${GROUP} cannot parse repository information in package.json`);
-    }
+    // NOTE: dummy progress, there is no way to handle terminal output
+    window.withProgress({ title: `${GROUP} opening repository...`, location: ProgressLocation.Notification }, withDelay(5000));
   });
 
   context.subscriptions.push(open);
@@ -45,12 +29,31 @@ export function activate(context: ExtensionContext) {
   console.log(`${GROUP} open-repository initialized successfully`);
 }
 
-// this method is called when your extension is deactivated
-export function deactivate() {}
+export function deactivate() {
+  const activeTerminal = findTerminal(EXTENSION_NAME);
 
-async function readPackageJson<Structure>(filePath: string) {
-  const node = await workspace.openTextDocument(filePath);
-  const text = node.getText();
+  if (activeTerminal) {
+    activeTerminal.dispose();
+  }
+}
 
-  return JSON.parse(text) as Structure;
+function findTerminal(name?: string) {
+  if (isEmptyStringOrNil(name)) {
+    return undefined;
+  }
+
+  return window.terminals.find(terminal => terminal.name === name);
+}
+
+function getTerminal(options: TerminalOptions) {
+  const activeTerminal = findTerminal(options.name);
+
+  if (activeTerminal) {
+    return activeTerminal;
+  }
+
+  return window.createTerminal({
+    ...options,
+    hideFromUser: true,
+  });
 }
