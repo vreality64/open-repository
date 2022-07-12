@@ -1,14 +1,16 @@
-import { window, ExtensionContext, commands, env, TerminalOptions, ProgressLocation } from 'vscode';
-import { withDelay } from './utils/delay';
+import { window, ExtensionContext, commands, env, TerminalOptions, ProgressLocation, Terminal, Progress, CancellationTokenSource, CancellationError, CancellationToken, workspace } from 'vscode';
+import { delay, withDelay } from './utils/delay';
 import { isEmptyStringOrNil } from './utils/validator';
 
 const EXTENSION_NAME = `open-repository`;
 const GROUP = `[Open Repository] `;
 // NOTE: wait for a while until shell command finished
-const WAIT_TIME = 5000;
+const INTERVAL = 1000;
+const TIMEOUT = 10000;
 
 export function activate(context: ExtensionContext) {
   console.log(`${GROUP} start initialize open-repository extension`);
+  const terminal = getTerminal({ name: EXTENSION_NAME });
 
   const open = commands.registerCommand('open-repository.openRepository', async () => {
     const query = await window.showInputBox({ placeHolder: `react`, prompt: `Enter package name` });
@@ -18,9 +20,9 @@ export function activate(context: ExtensionContext) {
     }
 
     try {
-      await openRepository(query);
+      await openRepository(terminal, query);
     } catch (error) {
-      window.showErrorMessage(`${GROUP} fail to open repository, check repository information in package.json`);
+      window.showErrorMessage(`${GROUP} fail to open repository ${query}, check repository information in package.json`);
     }
   });
 
@@ -34,9 +36,9 @@ export function activate(context: ExtensionContext) {
       }
 
       try {
-        await openRepository(query);
+        await openRepository(terminal, query);
       } catch (error) {
-        window.showErrorMessage(`${GROUP} fail to open repository, check repository information in package.json`);
+        window.showErrorMessage(`${GROUP} fail to open repository ${query}, check repository information in package.json`);
       }
     },
   );
@@ -71,38 +73,46 @@ function getTerminal(options: TerminalOptions) {
 
   return window.createTerminal({
     ...options,
-    hideFromUser: true,
+    // hideFromUser: true,
   });
 }
 
-async function openRepository(query: string) {
-  const command = `npm repo ${query}`;
-  const terminal = getTerminal({ name: EXTENSION_NAME });
-  const backup = await env.clipboard.readText();
+function openRepository(terminal: Terminal, query: string) {
+  return new Promise(async (resolve, reject) => {
+    const command = `npm repo ${query}`;
+    const backup = await env.clipboard.readText();
 
-  terminal.sendText(command);
-  terminal.sendText(`
-  if [ $? -eq 0 ]
-  then
-    echo "success" | pbcopy
-  else
-    echo "fail" | pbcopy
-  fi
-  `);
+    terminal.sendText(command);
+    terminal.sendText(`
+    if [ $? -eq 0 ]
+    then
+      echo "success" | pbcopy
+    else
+      echo "fail" | pbcopy
+    fi
+    `.trim());
 
-  await window.withProgress(
-    {
+    window.withProgress({
       title: `${GROUP} trying to open repository '${query}'`,
       location: ProgressLocation.Notification,
-    },
-    withDelay(WAIT_TIME),
-  );
+    }, withDelay({ interval: INTERVAL, timeout: TIMEOUT }));
 
-  const result = await env.clipboard.readText();
+    const intervalId = setInterval(async () => {
+      const result = await env.clipboard.readText();
+      const status = /success/.test(result) ? "success" : /fail/.test(result) ? "fail" : null;
 
-  await env.clipboard.writeText(backup);
+      if (status == null) {
+        return;
+      }
 
-  terminal.dispose();
+      await env.clipboard.writeText(backup);
 
-  return /success/.test(result) ? Promise.resolve() : Promise.reject();
+      status === 'success' ? resolve(status) : reject();
+      clearInterval(intervalId);
+    }, INTERVAL);
+
+    await delay(TIMEOUT);
+
+    clearInterval(intervalId);
+  });
 }

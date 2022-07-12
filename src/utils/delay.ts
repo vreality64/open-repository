@@ -6,20 +6,18 @@ export function delay(ms: number) {
   });
 }
 
-const SECOND = 1000;
-
-export function withDelay(ms: number) {
+export function withDelay({ interval, timeout }: { interval: number; timeout: number }) {
   return async (progress: Progress<{ increment: number }>) => {
-    const step = (SECOND / ms) * 100;
+    const step = (interval / timeout) * 100;
     let tick = step;
 
     const intervalId = setInterval(() => {
       progress.report({ increment: tick });
 
       tick += step;
-    }, ms);
+    }, interval);
 
-    await delay(ms);
+    await delay(timeout);
 
     clearInterval(intervalId);
   };
