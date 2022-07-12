@@ -1,5 +1,5 @@
-import { window, ExtensionContext, commands, env, TerminalOptions, ProgressLocation, Terminal, Progress, CancellationTokenSource, CancellationError, CancellationToken, workspace, MessageItem, Uri } from 'vscode';
-import { delay, withDelay } from './utils/delay';
+import { window, ExtensionContext, commands, env, TerminalOptions, ProgressLocation, Terminal, Uri } from 'vscode';
+import { delay } from './utils/delay';
 import { isEmptyStringOrNil } from './utils/validator';
 
 const EXTENSION_NAME = `open-repository`;
