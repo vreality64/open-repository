@@ -1,4 +1,4 @@
-import { window, ExtensionContext, commands, env, TerminalOptions, ProgressLocation, Terminal, Progress, CancellationTokenSource, CancellationError, CancellationToken, workspace } from 'vscode';
+import { window, ExtensionContext, commands, env, TerminalOptions, ProgressLocation, Terminal, Progress, CancellationTokenSource, CancellationError, CancellationToken, workspace, MessageItem, Uri } from 'vscode';
 import { delay, withDelay } from './utils/delay';
 import { isEmptyStringOrNil } from './utils/validator';
 
@@ -22,7 +22,7 @@ export function activate(context: ExtensionContext) {
     try {
       await openRepository(terminal, query);
     } catch (error) {
-      window.showErrorMessage(`${GROUP} fail to open repository ${query}, check repository information in package.json`);
+      showErrorMessage(query);
     }
   });
 
@@ -38,7 +38,7 @@ export function activate(context: ExtensionContext) {
       try {
         await openRepository(terminal, query);
       } catch (error) {
-        window.showErrorMessage(`${GROUP} fail to open repository ${query}, check repository information in package.json`);
+        showErrorMessage(query);
       }
     },
   );
@@ -114,5 +114,16 @@ function openRepository(terminal: Terminal, query: string) {
     await delay(TIMEOUT);
 
     clearInterval(intervalId);
+  });
+}
+
+function showErrorMessage(query: string) {
+  return window.showErrorMessage(`${GROUP} fail to open repository ${query}, check repository information in package.json`, `See Details`, `Close`)
+    .then(button => {
+      if (button === 'See Details') {
+        const detailLink = Uri.parse(`https://docs.npmjs.com/cli/v8/configuring-npm/package-json#repository`);
+
+        env.openExternal(detailLink);
+      }
   });
 }
