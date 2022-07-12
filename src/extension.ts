@@ -81,6 +81,7 @@ function openRepository(terminal: Terminal, query: string) {
   return new Promise(async (resolve, reject) => {
     const command = `npm repo ${query}`;
     const backup = await env.clipboard.readText();
+    let done = false;
 
     terminal.sendText(command);
     terminal.sendText(`
@@ -95,7 +96,29 @@ function openRepository(terminal: Terminal, query: string) {
     window.withProgress({
       title: `${GROUP} trying to open repository '${query}'`,
       location: ProgressLocation.Notification,
-    }, withDelay({ interval: INTERVAL, timeout: TIMEOUT }));
+    }, async progress => {
+      const step = (INTERVAL / TIMEOUT) * 100;
+      let tick = step;
+
+      return new Promise<void>(async resolve => {
+        const intervalId = setInterval(() => {
+          if (done) {
+            clearInterval(intervalId);
+            resolve();
+          }
+
+          progress.report({ increment: tick });
+
+          tick += step;
+
+        }, INTERVAL);
+
+        await delay(TIMEOUT);
+
+        resolve();
+        clearInterval(intervalId);
+      });
+    });
 
     const intervalId = setInterval(async () => {
       const result = await env.clipboard.readText();
@@ -107,12 +130,14 @@ function openRepository(terminal: Terminal, query: string) {
 
       await env.clipboard.writeText(backup);
 
+      done = true;
       status === 'success' ? resolve(status) : reject();
       clearInterval(intervalId);
     }, INTERVAL);
 
     await delay(TIMEOUT);
 
+    resolve("timeout");
     clearInterval(intervalId);
   });
 }
