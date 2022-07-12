@@ -21,6 +21,6 @@ export function withDelay(ms: number) {
 
     await delay(ms);
 
-    clearTimeout(intervalId);
+    clearInterval(intervalId);
   };
 }
