@@ -91,6 +91,6 @@
   },
   "dependencies": {
     "hosted-git-info": "^5.0.0",
-    "package-json": "^8.1.0"
+    "package-json": "^7.0.0"
   }
 }
