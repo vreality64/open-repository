@@ -10,7 +10,6 @@ const TIMEOUT = 10000;
 
 export function activate(context: ExtensionContext) {
   console.log(`${GROUP} start initialize open-repository extension`);
-  const terminal = getTerminal({ name: EXTENSION_NAME });
 
   const open = commands.registerCommand('open-repository.openRepository', async () => {
     const query = await window.showInputBox({ placeHolder: `react`, prompt: `Enter package name` });
@@ -20,6 +19,8 @@ export function activate(context: ExtensionContext) {
     }
 
     try {
+      const terminal = getTerminal({ name: EXTENSION_NAME });
+
       await openRepository(terminal, query);
     } catch (error) {
       showErrorMessage(query);
@@ -36,6 +37,8 @@ export function activate(context: ExtensionContext) {
       }
 
       try {
+        const terminal = getTerminal({ name: EXTENSION_NAME });
+
         await openRepository(terminal, query);
       } catch (error) {
         showErrorMessage(query);
@@ -73,7 +76,7 @@ function getTerminal(options: TerminalOptions) {
 
   return window.createTerminal({
     ...options,
-    // hideFromUser: true,
+    hideFromUser: true,
   });
 }
 
