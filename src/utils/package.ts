@@ -1,8 +1,9 @@
-import packageJson from 'package-json';
+// NOTE: package json v8 is only support ESM, however vscode extension does not.
+const packageJson: any = require('package-json');
+
 import { fromUrl } from 'hosted-git-info';
 import { isEmptyStringOrNil } from './validator';
 import { template } from './template';
-import { parseRepositoryUrl } from './parseRepositoryUrl';
 
 interface Repository {
   type: string;
@@ -41,4 +42,14 @@ export async function getRepositoryUrl(repository?: Repository) {
 
 export async function readPackageJson(packageName: string) {
   return packageJson(packageName, { fullMetadata: true });
+}
+
+export function parseRepositoryUrl(url: string) {
+  try {
+    const { protocol, href } = new URL(url.replace(/.git$/, ''));
+
+    return href.replace(protocol, 'https:');
+  } catch (error) {}
+
+  return null;
 }

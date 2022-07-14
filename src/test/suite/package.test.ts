@@ -1,6 +1,6 @@
 import * as assert from 'assert';
 
-import { parseRepositoryUrl } from '../../utils/parseRepositoryUrl';
+import { parseRepositoryUrl } from '../../utils/package';
 
 suite(`package utils`, () => {
   test(`success - allowed protocols`, () => {
