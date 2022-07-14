@@ -2,7 +2,7 @@
   "name": "open-repository",
   "displayName": "Open Repository",
   "description": "open npm package repository in browser",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "private": true,
   "engines": {
 		"vscode": "^1.63.0"
