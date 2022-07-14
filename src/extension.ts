@@ -1,5 +1,7 @@
 import { window, ExtensionContext, commands, env, TerminalOptions, ProgressLocation, Terminal, Uri } from 'vscode';
 import { delay } from './utils/delay';
+import { getRepositoryUrl, readPackageJson } from './utils/package';
+import { openUrl } from './utils/openUrl';
 import { isEmptyStringOrNil } from './utils/validator';
 
 const EXTENSION_NAME = `open-repository`;
@@ -10,7 +12,6 @@ const TIMEOUT = 10000;
 
 export function activate(context: ExtensionContext) {
   console.log(`${GROUP} start initialize open-repository extension`);
-  const terminal = getTerminal({ name: EXTENSION_NAME });
 
   const open = commands.registerCommand('open-repository.openRepository', async () => {
     const query = await window.showInputBox({ placeHolder: `react`, prompt: `Enter package name` });
@@ -20,6 +21,15 @@ export function activate(context: ExtensionContext) {
     }
 
     try {
+      const { repository } = await readPackageJson(query);
+      const url = await getRepositoryUrl(repository);
+
+      if (!isEmptyStringOrNil(url)) {
+        return openUrl(url);
+      }
+
+      const terminal = getTerminal({ name: EXTENSION_NAME });
+
       await openRepository(terminal, query);
     } catch (error) {
       showErrorMessage(query);
@@ -36,6 +46,15 @@ export function activate(context: ExtensionContext) {
       }
 
       try {
+        const { repository } = await readPackageJson(query);
+        const url = await getRepositoryUrl(repository);
+
+        if (!isEmptyStringOrNil(url)) {
+          return openUrl(url);
+        }
+
+        const terminal = getTerminal({ name: EXTENSION_NAME });
+
         await openRepository(terminal, query);
       } catch (error) {
         showErrorMessage(query);
@@ -73,7 +92,7 @@ function getTerminal(options: TerminalOptions) {
 
   return window.createTerminal({
     ...options,
-    // hideFromUser: true,
+    hideFromUser: true,
   });
 }
 
