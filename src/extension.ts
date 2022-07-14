@@ -1,5 +1,7 @@
 import { window, ExtensionContext, commands, env, TerminalOptions, ProgressLocation, Terminal, Uri } from 'vscode';
 import { delay } from './utils/delay';
+import { getRepositoryUrl, readPackageJson } from './utils/package';
+import { openUrl } from './utils/openUrl';
 import { isEmptyStringOrNil } from './utils/validator';
 
 const EXTENSION_NAME = `open-repository`;
@@ -19,6 +21,13 @@ export function activate(context: ExtensionContext) {
     }
 
     try {
+      const { repository } = await readPackageJson(query);
+      const url = await getRepositoryUrl(repository);
+
+      if (!isEmptyStringOrNil(url)) {
+        return openUrl(url);
+      }
+
       const terminal = getTerminal({ name: EXTENSION_NAME });
 
       await openRepository(terminal, query);
@@ -37,6 +46,13 @@ export function activate(context: ExtensionContext) {
       }
 
       try {
+        const { repository } = await readPackageJson(query);
+        const url = await getRepositoryUrl(repository);
+
+        if (!isEmptyStringOrNil(url)) {
+          return openUrl(url);
+        }
+
         const terminal = getTerminal({ name: EXTENSION_NAME });
 
         await openRepository(terminal, query);
