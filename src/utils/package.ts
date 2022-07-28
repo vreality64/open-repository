@@ -1,28 +1,36 @@
 // NOTE: package json v8 is only support ESM, however vscode extension does not.
 const packageJson: any = require('package-json');
 
+const fs = require('fs');
+const path = require('path');
+
 import { fromUrl } from 'hosted-git-info';
 import { isEmptyStringOrNil } from './validator';
 import { template } from './template';
 
-interface Repository {
+import { resolveDirectoryContext, INpmPackage as Package } from '@wixc3/resolve-directory-context';
+
+type Repository = {
   type: string;
   url?: string;
   directory?: string;
-}
+} | string;
 
 export async function getRepositoryUrl(repository?: Repository) {
+  const url = typeof repository === 'string' ? repository : repository?.url ?? '';
+  const directory = typeof repository !== 'string' ? repository?.directory : undefined;
+
   try {
     // case 1: read hosted repository from package json
-    const info = fromUrl(repository!.url!.replace(/^git\+/, ''));
-    const parsed = info!.browse(repository!.directory!);
+    const info = fromUrl(url?.replace(/^git\+/, ''))!;
+    const parsed = typeof directory === 'string' ? info.browse(directory) : info.browse();
 
     return parsed;
   } catch (error) {}
 
   // case 2: read enterprise repository from package json
   try {
-    const base = parseRepositoryUrl(repository!.url!);
+    const base = parseRepositoryUrl(url);
 
     if (isEmptyStringOrNil(base)) {
       return null;
@@ -30,7 +38,7 @@ export async function getRepositoryUrl(repository?: Repository) {
 
     return template({
       base,
-      path: repository?.directory,
+      path: directory,
       treepath: 'tree',
       branch: 'master',
     });
@@ -40,8 +48,39 @@ export async function getRepositoryUrl(repository?: Repository) {
   return null;
 }
 
-export async function readPackageJson(packageName: string) {
-  return packageJson(packageName, { fullMetadata: true });
+/**
+ * read from npm registry
+ *
+ * @param packageName
+ * @returns
+ */
+export async function readFromRegistry(packageName: string) {
+  try {
+    const metadata = await packageJson(packageName, { fullMetadata: true });
+
+    return metadata;
+  } catch (error) {}
+
+  return {};
+}
+
+/**
+ * read from installed yarn monorepo metadata
+ *
+ * @param packageName
+ * @returns
+ */
+export async function readFromInstalledMetadata(packageName: string, cwd: string) {
+  const context = resolveDirectoryContext(cwd,  { ...fs, ...path });
+  const pkg = findPackage(packageName, {
+    packages: context.type === 'multi' ?  context.packages : [context.npmPackage]
+  });
+
+  return pkg?.packageJson;
+}
+
+function findPackage(packageName: string, options: { packages: Package[] }) {
+  return options.packages.find(pkg => pkg.displayName === packageName);
 }
 
 export function parseRepositoryUrl(url: string) {
