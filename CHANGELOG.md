@@ -4,6 +4,10 @@ All notable changes to the "open-repository" extension will be documented in thi
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
+## [v1.0.6]
+
+- feat: open repository of installed package [#3](https://github.com/vreality64/open-repository/pull/3)
+
 ## [v1.0.5]
 
 - Use own logic to open repository url,
