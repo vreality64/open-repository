@@ -90,6 +90,7 @@
     "typescript": "^4.7.4"
   },
   "dependencies": {
+    "@wixc3/resolve-directory-context": "^3.0.0",
     "hosted-git-info": "^5.0.0",
     "package-json": "^7.0.0"
   }
